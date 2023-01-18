@@ -51,7 +51,7 @@ class LoginView(View):
         if kwargs.keys() != {'account', 'password'}:
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
-        email = kwargs['email']
+        email = kwargs['account']
         password = encrypt_password(kwargs['password'])
 
         user = User.objects.filter(email=email)
