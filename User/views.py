@@ -68,7 +68,7 @@ class LoginView(View):
         # 设置过期时间为一周
         request.session.set_expiry(60 * 60 * 24 * 7)
         request.session.save()
-        return JsonResponse({'code': 0, 'uid': user.id, 'name': user.name ,'message': '登录成功'})
+        return JsonResponse({'code': 0, 'uid': user.id, 'name': user.name,'identity': user.identity,'message': '登录成功'})
 
 
 class LogoutView(View):
@@ -83,16 +83,16 @@ class UserInfoView(View):
     def get(self, request):
         # 判断用户是否已登录
         if not request.session.get('is_login', None) or not request.session['is_login']:
-            return JsonResponse({'code': 0, 'message': '用户未登录'})
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
         user_id = request.session.get('user_id', None)
         user = User.objects.filter(id=user_id)
         if not user.exists():
-            return JsonResponse({'code': 0, 'message': '用户不存在'})
+            return JsonResponse({'code': 4, 'message': '用户不存在'})
         user = user.get()
-        return JsonResponse({'code': 1, 'message': '获取成功', 'data': {
+        return JsonResponse({'code': 0, 'message': '获取成功', 'data': {
             'name': user.name,
             'email': user.email,
-            'portrait': user.portrait,
+            'uid': user.id,
             'identity': user.identity,
         }})
 
@@ -121,10 +121,10 @@ class ChangeUserInfo(View):
 class SendVerifyCodeView(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'email'}:
+        if kwargs.keys() != {'account'}:
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
-        email = kwargs['email']
+        email = kwargs['account']
         # 生成验证码
         code = ''.join(random.sample(string.ascii_letters + string.digits, 6))
         # 发送验证码
@@ -250,9 +250,3 @@ class UploadPicture(View):
         return JsonResponse({'code': 1,
                              'message': '上传成功',
                              'file_url': file_url})
-
-
-class UserInfo(View):
-    def post(self, request):
-        pass
-

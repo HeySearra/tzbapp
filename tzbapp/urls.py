@@ -20,7 +20,7 @@ from User.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/register', RegisterView.as_view()),
-    path('account/show', UserInfoView.as_view()),
+    path('account/user_info', UserInfoView.as_view()),
     path('account/login', LoginView.as_view()),
     path('account/logout', LogoutView.as_view()),
     path('account/send_verify_code', SendVerifyCodeView.as_view()),
@@ -29,5 +29,4 @@ urlpatterns = [
     path('account/delete_user', DeleteUser.as_view()),
     path('account/delete_user_force', DeleteUserForce.as_view()),
     path('account/upload_picture', UploadPicture.as_view()),
-    path('account/user_info', UserInfo.as_view()),
 ]
