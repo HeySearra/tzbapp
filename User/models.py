@@ -14,7 +14,7 @@ def upload_to(instance, filename):
 
 class User(models.Model):
     name = models.CharField(verbose_name='姓名', max_length=50)
-    phone = models.CharField(verbose_name='手机号', max_length=50, unique=True)
+    phone = models.CharField(verbose_name='手机号', max_length=50, unique=True, null=True)
     email = models.EmailField(verbose_name='邮箱', max_length=100, unique=True)
     password = models.CharField(verbose_name='密码', max_length=100)
     portrait = models.FileField(verbose_name='头像路径', upload_to=upload_to)
