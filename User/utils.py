@@ -29,7 +29,7 @@ def send_email(email, verify_code):
     # 收件人邮箱
     mail_receivers = email
     # 邮件主题
-    mail_subject = 'MLOps注册验证码'
+    mail_subject = '注册验证码'
     # 邮件正文
     mail_content = '您的验证码为：' + verify_code
     # 邮件对象
