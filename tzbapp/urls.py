@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from User.views import *
+from Question.view import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +30,7 @@ urlpatterns = [
     path('account/delete_user', DeleteUser.as_view()),
     path('account/delete_user_force', DeleteUserForce.as_view()),
     path('account/upload_picture', UploadPicture.as_view()),
+
+    path('patient/uploadquestion', UploadQuestionScore.as_view()),
+    path('patient/askquestion', GetQuestionScore.as_view()),
 ]

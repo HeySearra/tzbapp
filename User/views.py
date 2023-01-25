@@ -28,6 +28,8 @@ class RegisterView(View):
         password = encrypt_password(kwargs['password'])
         identity = kwargs['identity']
         verify_code = kwargs['verify_code']
+        sex = kwargs.get('sex', 0)
+        number = kwargs.get('number', '')
         # 检查邮箱是否已注册
         if User.objects.filter(email=email).exists():
             return JsonResponse({'code': 6, 'message': '邮箱已被注册'})
@@ -41,7 +43,7 @@ class RegisterView(View):
             vc.delete()
             return JsonResponse({'code': 7, 'message': '验证码已过期'})
         # 注册表User
-        user = User.objects.create(email=email, password=password, name=name, identity=identity)
+        user = User.objects.create(email=email, password=password, name=name, identity=identity, sex=sex, number=number)
         return JsonResponse({'code': 0, 'message': '注册成功', 'uid': user.id})
 
 
@@ -65,6 +67,7 @@ class LoginView(View):
         request.session['user_id'] = user.id
         request.session['name'] = user.name
         request.session['identity'] = user.identity
+        request.session['account'] = user.email
         # 设置过期时间为一周
         request.session.set_expiry(60 * 60 * 24 * 7)
         request.session.save()
