@@ -51,7 +51,7 @@ class GetQuestionScore(View):
         if not user.exists():
             return JsonResponse({'code': 7, 'message': '用户不存在'})
         user = user.get()
-        question_list = Questionare.objects.filter(user=user).order_by('create_time')
+        question_list = Questionare.objects.filter(user=user).order_by('-create_time')
         res = {
             'questionScore':[{
                 'time': item.create_time.strftime("%Y-%m-%d %H:%M:%S"),
