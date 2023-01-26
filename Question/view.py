@@ -11,8 +11,8 @@ from User.models import User
 
 class UploadQuestionScore(View):
     def post(self, request):
-        if not request.session.get('is_login', None) or not request.session['is_login']:
-            return JsonResponse({'code': 7, 'message': '用户未登录'})
+        # if not request.session.get('is_login', None) or not request.session['is_login']:
+        #     return JsonResponse({'code': 3, 'message': '用户未登录'})
         kwargs: dict = json.loads(request.body)
         if kwargs.keys() != {'account', 'time', 'questionare1', 'questionare2', 'questionare3', 'questionare4', 'questionare5'}:
             return JsonResponse({'code': 1, 'message': '参数错误'})
@@ -29,7 +29,7 @@ class UploadQuestionScore(View):
         questionare5 = kwargs['questionare5']
         user = User.objects.filter(email=account)
         if not user.exists():
-            return JsonResponse({'code': 7, 'message': '用户不存在'})
+            return JsonResponse({'code': 4, 'message': '用户不存在'})
         user= user.get()
         Questionare.objects.create(user=user, create_time=date_time, score1=questionare1, score2=questionare2,
                                    score3=questionare3, score4=questionare4, score5=questionare5)
@@ -39,8 +39,8 @@ class UploadQuestionScore(View):
 class GetQuestionScore(View):
     def post(self, request):
         # 检查登录
-        if not request.session.get('is_login', None) or not request.session['is_login']:
-            return JsonResponse({'code': 7, 'message': '用户未登录'})
+        # if not request.session.get('is_login', None) or not request.session['is_login']:
+        #     return JsonResponse({'code': 3, 'message': '用户未登录'})
         kwargs: dict = json.loads(request.body)
         if set(kwargs.keys()).issubset({'account'}):
             return JsonResponse({'code': 1, 'message': '参数错误'})
@@ -49,7 +49,7 @@ class GetQuestionScore(View):
             return JsonResponse({'code': 7, 'message': '权限错误'})
         user = User.objects.filter(email=account)
         if not user.exists():
-            return JsonResponse({'code': 7, 'message': '用户不存在'})
+            return JsonResponse({'code': 4, 'message': '用户不存在'})
         user = user.get()
         question_list = Questionare.objects.filter(user=user).order_by('-create_time')
         res = {
