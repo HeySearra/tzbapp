@@ -18,7 +18,7 @@ class RegisterView(View):
     def post(self, request):
         print(request.body)
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'name', 'account', 'password', 'identity', 'verify_code'}:
+        if set(kwargs.keys()).issubset({'name', 'account', 'password', 'identity', 'verify_code'}):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 检查参数格式是否正确
         pass
