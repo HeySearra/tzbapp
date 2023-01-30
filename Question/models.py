@@ -12,16 +12,18 @@ class Questionare(models.Model):
     score5 = models.FloatField()
 
 
-# class SWZL(models.Model):
-#     # 生物治疗反馈仪
-#     user = models.ForeignKey(to=User, on_delete=models.CASCADE, to_field="email")
-#     picture = models.FileField()
-#
-#
-# class GMZC(models.Model):
-#     # 肛门直肠测压
-#     user = models.ForeignKey(to=User, on_delete=models.CASCADE, to_field="email")
-#     picture = models.FileField()
+class SWZL(models.Model):
+    # 生物治疗反馈仪
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, to_field="email")
+    create_time = models.DateTimeField(auto_now_add=True)
+    picture = models.CharField(verbose_name='图片', max_length=4096, default='')
+
+
+class GMZC(models.Model):
+    # 肛门直肠测压
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE, to_field="email")
+    create_time = models.DateTimeField(auto_now_add=True)
+    picture = models.CharField(verbose_name='图片', max_length=4096, default='')
 
 
 # class VedioRecord(models.Model):

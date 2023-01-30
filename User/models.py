@@ -28,6 +28,7 @@ class User(models.Model):
     identity = models.IntegerField(verbose_name='身份', choices=IDENTITY_CHS, default=1)
     sex = models.IntegerField(verbose_name='性别', choices=SEX_CHS, default=0, null=True)
     number = models.CharField(verbose_name='工号', max_length=50, null=True)
+    patient = models.ManyToManyField('User', related_name='patients')
 
 
 class VerifyCode(models.Model):

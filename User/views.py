@@ -10,6 +10,8 @@ import datetime
 
 from django.views import View
 
+from Question.models import SWZL, GMZC
+from User.form import PictureUpload
 from User.models import User, VerifyCode
 from User.utils import *
 
@@ -50,7 +52,7 @@ class RegisterView(View):
 class LoginView(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'account', 'password'}:
+        if set(kwargs.keys()).issubset({'account', 'password'}):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
         email = kwargs['account']
@@ -107,7 +109,7 @@ class ChangeUserInfo(View):
             return JsonResponse({'code': 0, 'message': '用户未登录'})
         kwargs: dict = json.loads(request.body)
         if kwargs.keys() != {'name'}:
-            return JsonResponse({'code': 400, 'message': '参数错误'})
+            return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
         name = kwargs['name']
 
@@ -124,7 +126,7 @@ class ChangeUserInfo(View):
 class SendVerifyCodeView(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'account'}:
+        if set(kwargs.keys()).issubset({'account'}):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
         email = kwargs['account']
@@ -145,8 +147,8 @@ class SendVerifyCodeView(View):
 class ChangePassword(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'account', 'password', 'verify_code'}:
-            return JsonResponse({'code': 400, 'message': '参数错误'})
+        if set(kwargs.keys()).issubset({'account', 'password', 'verify_code'}):
+            return JsonResponse({'code': 1, 'message': '参数错误'})
         # todo:account存在session
         email = kwargs['account']
         password = encrypt_password(kwargs['password'])
@@ -229,27 +231,34 @@ class UploadPicture(View):
     def post(self, request):
         # 判断用户是否已登录
         if not request.session.get('is_login', None) or not request.session['is_login']:
-            return JsonResponse({'code': 0, 'message': '用户未登录'})
-        # 判断是否有文件上传
-        if not request.FILES:
-            return JsonResponse({'code': 0, 'message': '未上传文件'})
-        # 判断文件是否是图片
-        file = request.FILES['file']
-        if not file.name.split('.')[-1] in ['jpg', 'png', 'jpeg']:
-            return JsonResponse({'code': 0, 'message': '文件格式错误'})
-        # 判断文件尺寸是否超过限制
-        if file.size > MAX_PORTRAIT_SIZE:
-            return JsonResponse({'code': 0, 'message': '文件尺寸超过限制'})
-        # 保存文件
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
         user_id = request.session.get('user_id', None)
         user = User.objects.filter(id=user_id)
         if not user.exists():
-            return JsonResponse({'code': 0, 'message': '用户不存在'})
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
         user = user.get()
-
-        user.portrait = file
-        user.save()
-
-        return JsonResponse({'code': 1,
+        # 判断是否有文件上传
+        upload_form = PictureUpload(request.POST, request.FILES)
+        if upload_form.is_valid():
+            upload_path = ['source/picture/swzl/', 'source/picture/gmzc/']
+            file_name_rand_set = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+            type = int(upload_form.cleaned_data['type'])
+            path = upload_path[type]
+            file = upload_form.cleaned_data['file']
+            if not file.name.split('.')[-1] in ['jpg', 'png', 'jpeg']:
+                return JsonResponse({'code': 0, 'message': '文件格式错误'})
+            if file.size > MAX_PORTRAIT_SIZE:
+                return JsonResponse({'code': 5, 'message': '文件尺寸超过限制'})
+            file_name = ''.join([file_name_rand_set[random.randint(0, 61)] for x in range(20)]) + '.jpg'
+            with open(path + file_name, 'wb') as pic:
+                for chunk in file.chunks():
+                    pic.write(chunk)
+            if type == 1:
+                SWZL.objects.create(user=user, picture='/' + path + file_name)
+            elif type == 2:
+                GMZC.objects.create(user=user, picture='/' + path + file_name)
+            return JsonResponse({'code': 1,
                              'message': '上传成功',
-                             'file_url': file_url})
+                             'file_url': '/' + path + file_name})
+        else:
+            return JsonResponse({'code': 1, 'message': '参数错误'})
