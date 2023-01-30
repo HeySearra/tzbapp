@@ -42,7 +42,7 @@ class GetQuestionScore(View):
         if not request.session.get('is_login', None) or not request.session['is_login']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
         kwargs: dict = json.loads(request.body)
-        if set(kwargs.keys()).issubset({'account'}):
+        if not {'account'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         account = kwargs['account']
         if account != request.session.get('account', None):

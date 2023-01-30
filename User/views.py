@@ -20,7 +20,7 @@ class RegisterView(View):
     def post(self, request):
         print(request.body)
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'name', 'account', 'password', 'identity', 'verify_code'}):
+        if not {'name', 'account', 'password', 'identity', 'verify_code'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 检查参数格式是否正确
         pass
@@ -52,7 +52,7 @@ class RegisterView(View):
 class LoginView(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'account', 'password'}):
+        if not {'account', 'password'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
         email = kwargs['account']
@@ -126,7 +126,7 @@ class ChangeUserInfo(View):
 class SendVerifyCodeView(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'account'}):
+        if not {'account'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
         email = kwargs['account']
@@ -152,7 +152,7 @@ class ChangePassword(View):
         if not user.exists():
             return JsonResponse({'code': 4, 'message': '用户不存在'})
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'password', 'verify_code'}):
+        if not {'password', 'verify_code'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         email = request.session.get('account', '')
         code = kwargs['verify_code']
@@ -271,7 +271,7 @@ class UploadPicture(View):
 class AddPatient(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'patientAccount'}):
+        if not {'patientAccount'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         doctorAccount = kwargs.get('doctorAccount', '')
         if not request.session.get('is_login', None) or not request.session['is_login'] or(doctorAccount != '' and request.session['account'] != doctorAccount):
@@ -299,7 +299,7 @@ class AddPatient(View):
 class GetPatient(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'account'}):
+        if not {'account'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         if not request.session.get('is_login', None) or not request.session['is_login'] or request.session['account'] != kwargs['account']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
@@ -322,7 +322,7 @@ class GetPatient(View):
 class GetDoctor(View):
     def post(self, request):
         kwargs: dict = json.loads(request.body)
-        if not set(kwargs.keys()).issubset({'account'}):
+        if not {'account'}.issubset(set(kwargs.keys())):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         if not request.session.get('is_login', None) or not request.session['is_login'] or request.session['account'] != kwargs['account']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
@@ -331,7 +331,7 @@ class GetDoctor(View):
             return JsonResponse({'code': 4, 'message': '用户不存在'})
         user = user.get()
         if user.identity != 1:
-            return JsonResponse({'code': 5, 'message': '权限不足'})
+            return JsonResponse({'code': 5, 'message': '该用户为医生'})
         if user.doctor.all().count() == 0:
             return JsonResponse({'code': 6, 'message': '该患者暂无所属医生', 'account': {'name': '', 'account': ''}})
         res = {'name': user.doctor.all()[0].name, 'acocunt': user.doctor.all()[0].email}
