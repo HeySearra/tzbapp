@@ -31,6 +31,10 @@ urlpatterns = [
     path('account/delete_user_force', DeleteUserForce.as_view()),
     path('account/upload_picture', UploadPicture.as_view()),
 
+    path('doctor/addpatient', AddPatient.as_view()),
+    path('doctor/askpatient', GetPatient.as_view()),
+    path('patient/askdoctor', GetDoctor.as_view()),
+
     path('patient/uploadquestion', UploadQuestionScore.as_view()),
     path('patient/askquestion', GetQuestionScore.as_view()),
 ]
