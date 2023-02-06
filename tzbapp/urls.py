@@ -29,7 +29,7 @@ urlpatterns = [
     path('account/change_password', ChangePassword.as_view()),
     path('account/delete_user', DeleteUser.as_view()),
     path('account/delete_user_force', DeleteUserForce.as_view()),
-    path('account/upload_picture', UploadPicture.as_view()),
+    path('upload_pic', UploadPicture.as_view()),
 
     path('doctor/addpatient', AddPatient.as_view()),
     path('doctor/askpatient', GetPatient.as_view()),

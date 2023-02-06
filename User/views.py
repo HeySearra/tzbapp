@@ -253,15 +253,25 @@ class UploadPicture(View):
         if not user.exists():
             return JsonResponse({'code': 3, 'message': '用户未登录'})
         user = user.get()
+        if user.identity != 2:
+            return JsonResponse({'code': 5, 'message': '用户无权限'})
         # 判断是否有文件上传
         upload_form = PictureUpload(request.POST, request.FILES)
         if upload_form.is_valid():
+            patientAccount = upload_form.cleaned_data['patientAccount']
+            patient = User.objects.filter(email=patientAccount)
+            if not patient.exists():
+                return JsonResponse({'code': 4, 'message': '用户不存在'})
+            patient = patient.get()
+            # if not request.session.get('is_login', None) or not request.session['is_login'] or (
+            #         patientAccount != '' and request.session['account'] != patientAccount):
+            #     return JsonResponse({'code': 3, 'message': '用户未登录'})
             upload_path = ['source/picture/swzl/', 'source/picture/gmzc/']
             file_name_rand_set = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
             type = int(upload_form.cleaned_data['type'])
             path = upload_path[type]
             file = upload_form.cleaned_data['file']
-            if not file.name.split('.')[-1] in ['jpg', 'png', 'jpeg']:
+            if not file.name.split('.')[-1] in ['jpg', 'png', 'jpeg', 'JPG']:
                 return JsonResponse({'code': 0, 'message': '文件格式错误'})
             if file.size > MAX_PORTRAIT_SIZE:
                 return JsonResponse({'code': 5, 'message': '文件尺寸超过限制'})
@@ -270,12 +280,12 @@ class UploadPicture(View):
                 for chunk in file.chunks():
                     pic.write(chunk)
             if type == 1:
-                SWZL.objects.create(user=user, picture='/' + path + file_name)
+                SWZL.objects.create(user=patient, create_user=user, picture='/' + path + file_name)
             elif type == 2:
-                GMZC.objects.create(user=user, picture='/' + path + file_name)
+                GMZC.objects.create(user=patient, create_user=user, picture='/' + path + file_name)
             return JsonResponse({'code': 1,
                              'message': '上传成功',
-                             'file_url': '/' + path + file_name})
+                             'url': '/' + path + file_name})
         else:
             return JsonResponse({'code': 1, 'message': '参数错误'})
 
