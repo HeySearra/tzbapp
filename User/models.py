@@ -27,7 +27,7 @@ class User(models.Model):
     portrait = models.FileField(verbose_name='头像路径', upload_to=upload_to)
     identity = models.IntegerField(verbose_name='身份', choices=IDENTITY_CHS, default=1)
     sex = models.IntegerField(verbose_name='性别', choices=SEX_CHS, default=0, null=True)
-    number = models.CharField(verbose_name='工号', max_length=50, null=True)
+    number = models.CharField(verbose_name='工号', max_length=50, default='')
     patient = models.ManyToManyField('User', related_name='doctor')
 
 

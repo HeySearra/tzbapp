@@ -85,7 +85,7 @@ class LogoutView(View):
 
 
 class UserInfoView(View):
-    def get(self, request):
+    def post(self, request):
         # 判断用户是否已登录
         if not request.session.get('is_login', None) or not request.session['is_login']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
@@ -96,7 +96,9 @@ class UserInfoView(View):
         user = user.get()
         return JsonResponse({'code': 0, 'message': '获取成功', 'data': {
             'name': user.name,
-            'email': user.email,
+            'number': user.number,
+            'sex': user.sex,
+            'account': user.email,
             'uid': user.id,
             'identity': user.identity,
         }})
@@ -106,21 +108,31 @@ class ChangeUserInfo(View):
     def post(self, request):
         # 判断用户是否已登录
         if not request.session.get('is_login', None) or not request.session['is_login']:
-            return JsonResponse({'code': 0, 'message': '用户未登录'})
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
         kwargs: dict = json.loads(request.body)
-        if kwargs.keys() != {'name'}:
+        if not 'name' in set(kwargs.keys()) and not 'sex' in set(kwargs.keys()) and not 'number' in set(kwargs.keys()):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         # 取出request中的参数
-        name = kwargs['name']
+        name = kwargs.get('name', None)
+        sex = kwargs.get('sex', None)
+        number = kwargs.get('number', None)
 
         user_id = request.session.get('user_id', None)
         user = User.objects.filter(id=user_id)
         if not user.exists():
-            return JsonResponse({'code': 0, 'message': '用户未注册'})
+            return JsonResponse({'code': 4, 'message': '用户不存在'})
         user = user.get()
-        user.name = name
-        user.save()
-        return JsonResponse({'code': 1, 'message': '修改成功'})
+        if name is not None:
+            user.name = name
+        if sex is not None:
+            user.sex = sex
+        if number is not None:
+            user.number = number
+        try:
+            user.save()
+        except:
+            return JsonResponse({'code': 2, 'message': '存储错误'})
+        return JsonResponse({'code': 0, 'message': '修改成功'})
 
 
 class SendVerifyCodeView(View):
