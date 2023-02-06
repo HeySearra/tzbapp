@@ -85,7 +85,7 @@ class LogoutView(View):
 
 
 class UserInfoView(View):
-    def post(self, request):
+    def get(self, request):
         # 判断用户是否已登录
         if not request.session.get('is_login', None) or not request.session['is_login']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
