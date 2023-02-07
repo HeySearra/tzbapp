@@ -5,11 +5,11 @@ from User.models import User
 class Questionare(models.Model):
     user = models.ForeignKey(to=User, on_delete=models.CASCADE, to_field="email")
     create_time = models.DateTimeField(null=True)
-    score1 = models.FloatField()
-    score2 = models.FloatField()
-    score3 = models.FloatField()
-    score4 = models.FloatField()
-    score5 = models.FloatField()
+    score1 = models.FloatField(default=-1)
+    score2 = models.FloatField(default=-1)
+    score3 = models.FloatField(default=-1)
+    score4 = models.FloatField(default=-1)
+    score5 = models.FloatField(default=-1)
 
 
 class SWZL(models.Model):

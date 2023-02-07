@@ -184,7 +184,10 @@ class ChangePassword(View):
         # 修改密码
         user = user.get()
         user.password = encrypt_password(kwargs['password'])
-        user.save()
+        try:
+            user.save()
+        except:
+            return JsonResponse({'code': 2, 'message': '存储错误'})
         return JsonResponse({'code': 0, 'message': '修改成功'})
 
 
@@ -337,6 +340,30 @@ class GetPatient(View):
                 'name': a.name,
                 'account': a.email,
             }for a in ptt]
+        }
+        return JsonResponse({'code': 0, 'message': '查询成功', 'patient': res})
+
+
+class GetAllPatient(View):
+    def post(self, request):
+        kwargs: dict = json.loads(request.body)
+        if not {'account'}.issubset(set(kwargs.keys())):
+            return JsonResponse({'code': 1, 'message': '参数错误'})
+        if not request.session.get('is_login', None) or not request.session['is_login'] or request.session['account'] != kwargs['account']:
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
+        user = User.objects.filter(id=request.session.get('user_id', 0))
+        if not user.exists():
+            return JsonResponse({'code': 4, 'message': '用户不存在'})
+        user = user.get()
+        if user.identity != 2:
+            return JsonResponse({'code': 5, 'message': '权限不足'})
+        all_ptt = User.objects.filter(identity=1)
+        res = {
+            'patient': [{
+                'name': a.name,
+                'account': a.email,
+                'doctor_name': '' if a.doctor.all().count() == 0 else a.doctor.get().name,
+            }for a in all_ptt]
         }
         return JsonResponse({'code': 0, 'message': '查询成功', 'patient': res})
 

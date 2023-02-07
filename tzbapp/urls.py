@@ -33,8 +33,10 @@ urlpatterns = [
 
     path('doctor/addpatient', AddPatient.as_view()),
     path('doctor/askpatient', GetPatient.as_view()),
-    path('patient/askdoctor', GetDoctor.as_view()),
-
-    path('patient/uploadquestion', UploadQuestionScore.as_view()),
+    path('doctor/askallpatient', GetAllPatient.as_view()),
+    path('doctor/deletequestion', DeleteQuestion.as_view()),
+    path('doctor/uploadquestion', DoctorUploadQuestionScore.as_view()),
+    path('patient/uploadquestion', PatientUploadQuestionScore.as_view()),
     path('patient/askquestion', GetQuestionScore.as_view()),
+    path('patient/askdoctor', GetDoctor.as_view()),
 ]
