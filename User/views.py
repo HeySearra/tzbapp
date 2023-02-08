@@ -346,14 +346,14 @@ class GetPatient(View):
 
 class GetAllPatient(View):
     def post(self, request):
-        kwargs: dict = json.loads(request.body)
-        if not {'account'}.issubset(set(kwargs.keys())):
-            return JsonResponse({'code': 1, 'message': '参数错误'})
-        if not request.session.get('is_login', None) or not request.session['is_login'] or request.session['account'] != kwargs['account']:
+        # kwargs: dict = json.loads(request.body)
+        # if not {'account'}.issubset(set(kwargs.keys())):
+        #     return JsonResponse({'code': 1, 'message': '参数错误'})
+        if not request.session.get('is_login', None) or not request.session['is_login']:
             return JsonResponse({'code': 3, 'message': '用户未登录'})
         user = User.objects.filter(id=request.session.get('user_id', 0))
         if not user.exists():
-            return JsonResponse({'code': 4, 'message': '用户不存在'})
+            return JsonResponse({'code': 3, 'message': '用户未登录'})
         user = user.get()
         if user.identity != 2:
             return JsonResponse({'code': 5, 'message': '权限不足'})

@@ -48,8 +48,8 @@ class DoctorUploadQuestionScore(View):
         pass
         # 取出request中的参数
         account = kwargs['account']
-        time = kwargs['time']
-        date_time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+        kwargs_time = kwargs['time']
+        date_time = datetime.datetime.strptime(kwargs_time, "%Y-%m-%d %H:%M:%S")
         # questionare1 = kwargs['questionare1']
         questionare2 = kwargs['questionare2']
         # questionare3 = kwargs['questionare3']
@@ -116,8 +116,19 @@ class DeleteQuestion(View):
             return JsonResponse({'code': 1, 'message': '参数错误'})
         account = kwargs['account']
         kwargs_time = kwargs['time']
+        date_time = datetime.datetime.strptime(kwargs_time, "%Y-%m-%d %H:%M:%S")
         if (account != request.session.get('account', None) and request.session.get('identity', None) == 1):
             return JsonResponse({'code': 7, 'message': '权限错误'})
         user = User.objects.filter(email=account)
         if not user.exists():
             return JsonResponse({'code': 4, 'message': '用户不存在'})
+        user = user.get()
+        que = Questionare.objects.filter(user=user, create_time=date_time)
+        if que.count() != 1:
+            return JsonResponse({'code': 6, 'message': '该问卷不存在'})
+        que = que.get()
+        try:
+            que.delete()
+        except:
+            return JsonResponse({'code': 2, 'message': '存储错误'})
+        return JsonResponse({'code': 0, 'message': '删除成功'})
